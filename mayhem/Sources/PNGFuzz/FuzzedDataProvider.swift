@@ -101,10 +101,8 @@ class FuzzedDataProvider {
     }
 
     func ConsumeRandomLengthData() -> Data {
-        let length = ConsumeIntegralInRange(from: 0, to: RemainingBytes())
-        let data = data_src.prefix(Int(length))
-        data_src.removeFirst(Int(length))
-        return data
+        let s = ConsumeRandomLengthString()
+        return Data(s.utf8) ?? Data()
     }
 
 

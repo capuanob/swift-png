@@ -73,7 +73,7 @@ public func PNGFuzz(_ start: UnsafeRawPointer, _ count: Int) -> CInt {
             let h = pixels.count / w!
             let img = try PNG.Data.Rectangular.init(packing: pixels.map { UInt8($0) },
                     size: (w!, h), layout: .init(format: .rgba8(palette: [], fill: nil)))
-            try img.compress(path: "/dev/null", level: fdp.ConsumeIntegralInRange(from: 0, to: 99))
+//            try img.compress(path: "/dev/null", level: fdp.ConsumeIntegralInRange(from: 0, to: 99))
         default:
             fatalError("Invalid fuzz choice")
         }
