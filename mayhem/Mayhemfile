@@ -1,0 +1,8 @@
+project: swift-png
+target: fuzz-swift-png
+testsuite:
+    - file://mayhem/testsuite
+
+cmds:
+  - cmd: /debug/PNGFuzz
+    libfuzzer: true
