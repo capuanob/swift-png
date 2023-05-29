@@ -107,29 +107,6 @@ class FuzzedDataProvider {
         return data
     }
 
-    func ConsumeTemporaryFile(allData: Bool) throws -> URL {
-        let temporaryDirectoryURL = URL(fileURLWithPath: NSTemporaryDirectory())
-        let temporaryFileURL = temporaryDirectoryURL.appendingPathComponent(UUID().uuidString)
-
-        // Create an empty temporary file
-        FileManager.default.createFile(atPath: temporaryFileURL.path, contents: nil, attributes: nil)
-
-        // Clean up the temporary file when the function goes out of scope
-        defer {
-            do {
-                try FileManager.default.removeItem(at: temporaryFileURL)
-            } catch {
-                print("Error deleting temporary file:", error)
-            }
-        }
-
-        // Write data to the temporary file
-        let data = allData ? ConsumeRemainingData() : ConsumeRandomLengthData()
-        try data.write(to: temporaryFileURL)
-
-        // Return the temporary file URL
-        return temporaryFileURL
-    }
 
     func PickValueInList<T>(from list: T) -> T.Element where T: Collection {
         return list[ConsumeIntegralInRange(from: 0, to: list.count - 1) as! T.Index]
