@@ -58,16 +58,14 @@ public func PNGFuzz(_ start: UnsafeRawPointer, _ count: Int) -> CInt {
     ctr += 1
 
     do {
-        let choice = fdp.ConsumeIntegralInRange(from: 0, to: 1)
-
-        switch (choice) {
-        case 0:
-                var stream = System.Blob(fdp.ConsumeRemainingData())
-                let img = try PNG.Data.Rectangular.decompress(stream: &stream)
-                img.unpack(as: PNG.RGBA<UInt8>.self)
-                return 0;
-        case 1:
-            var w: Int?  = nil
+        let choice = fdp.ConsumeIntegralInRange(from: 0, to: 100)
+        if (choice <= 99) {
+            var stream = System.Blob(fdp.ConsumeRemainingData())
+            let img = try PNG.Data.Rectangular.decompress(stream: &stream)
+            img.unpack(as: PNG.RGBA<UInt8>.self)
+        }
+        else {
+            var w: Int? = nil
 
             let pixels: Data = fdp.ConsumeRandomLengthData()
             if pixels.count == 0 {
@@ -78,14 +76,12 @@ public func PNGFuzz(_ start: UnsafeRawPointer, _ count: Int) -> CInt {
                 w = fdp.ConsumeIntegralInRange(from: 1, to: pixels.count)
             }
             let h = pixels.count / w!
-            let img = PNG.Data.Rectangular.init(packing: pixels.map { UInt8($0) },
+            let img = PNG.Data.Rectangular.init(packing: pixels.map {
+                UInt8($0)
+            },
                     size: (w!, h), layout: .init(format: .rgba8(palette: [], fill: nil)))
             var blob = System.Blob(Data())
-            if ctr > 100 {
-                try img.compress(stream: &blob, level: fdp.ConsumeIntegralInRange(from: 1, to: 10))
-            }
-        default:
-            fatalError("Invalid fuzz choice")
+            try img.compress(stream: &blob, level: fdp.ConsumeIntegralInRange(from: 1, to: 10))
         }
         return 0
     }
