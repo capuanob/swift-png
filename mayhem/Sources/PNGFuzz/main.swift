@@ -51,8 +51,11 @@ extension System.Blob:PNG.Bytestream.Source, PNG.Bytestream.Destination
     }
 }
 
+var ctr = 0
+
 @_cdecl("LLVMFuzzerTestOneInput")
 public func PNGFuzz(_ start: UnsafeRawPointer, _ count: Int) -> CInt {
+    ctr += 1
     let fdp = FuzzedDataProvider(start, count)
     do {
         let choice = fdp.ConsumeIntegralInRange(from: 0, to: 1)
@@ -67,13 +70,20 @@ public func PNGFuzz(_ start: UnsafeRawPointer, _ count: Int) -> CInt {
             var w: Int?  = nil
 
             let pixels: Data = fdp.ConsumeRandomLengthData()
+            if pixels.count == 0 {
+                return -1
+            }
+
             while w == nil || pixels.count % w! != 0 {
                 w = fdp.ConsumeIntegralInRange(from: 1, to: pixels.count)
             }
             let h = pixels.count / w!
-            let img = try PNG.Data.Rectangular.init(packing: pixels.map { UInt8($0) },
+            let img = PNG.Data.Rectangular.init(packing: pixels.map { UInt8($0) },
                     size: (w!, h), layout: .init(format: .rgba8(palette: [], fill: nil)))
-//            try img.compress(path: "/dev/null", level: fdp.ConsumeIntegralInRange(from: 0, to: 99))
+            var blob = System.Blob(Data())
+            if fdp.ConsumeBoolean() && ctr > 100_000 {
+                try img.compress(stream: &blob, level: fdp.ConsumeIntegralInRange(from: 1, to: 10))
+            }
         default:
             fatalError("Invalid fuzz choice")
         }

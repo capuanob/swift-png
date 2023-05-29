@@ -102,7 +102,7 @@ class FuzzedDataProvider {
 
     func ConsumeRandomLengthData() -> Data {
         let s = ConsumeRandomLengthString()
-        return Data(s.utf8) ?? Data()
+        return Data(s.utf8)
     }
 
 
