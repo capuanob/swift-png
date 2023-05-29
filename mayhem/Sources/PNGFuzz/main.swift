@@ -50,10 +50,13 @@ extension System.Blob:PNG.Bytestream.Source, PNG.Bytestream.Destination
         return ()
     }
 }
+var ctr = 0
 
 @_cdecl("LLVMFuzzerTestOneInput")
 public func PNGFuzz(_ start: UnsafeRawPointer, _ count: Int) -> CInt {
     let fdp = FuzzedDataProvider(start, count)
+    ctr += 1
+
     do {
         let choice = fdp.ConsumeIntegralInRange(from: 0, to: 1)
 
@@ -78,7 +81,7 @@ public func PNGFuzz(_ start: UnsafeRawPointer, _ count: Int) -> CInt {
             let img = PNG.Data.Rectangular.init(packing: pixels.map { UInt8($0) },
                     size: (w!, h), layout: .init(format: .rgba8(palette: [], fill: nil)))
             var blob = System.Blob(Data())
-            if fdp.ConsumeBoolean() {
+            if ctr > 1000 {
                 try img.compress(stream: &blob, level: fdp.ConsumeIntegralInRange(from: 1, to: 10))
             }
         default:
