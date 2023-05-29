@@ -81,7 +81,9 @@ public func PNGFuzz(_ start: UnsafeRawPointer, _ count: Int) -> CInt {
             },
                     size: (w!, h), layout: .init(format: .rgba8(palette: [], fill: nil)))
             var blob = System.Blob(Data())
-            try img.compress(stream: &blob, level: fdp.ConsumeIntegralInRange(from: 1, to: 10))
+            if fdp.ConsumeIntegralInRange(from: 1, to: 100) == 50 {
+                try img.compress(stream: &blob, level: fdp.ConsumeIntegralInRange(from: 1, to: 10))
+            }
         }
         return 0
     }
